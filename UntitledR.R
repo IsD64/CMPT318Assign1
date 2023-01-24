@@ -23,7 +23,6 @@ arithMeanGlobal_active_power <- mean(dfWeek20$Global_active_power)
 geomMeanGlobal_active_power <- exp(mean(log(dfWeek20$Global_active_power)))
 medianGlobal_active_power <- median(dfWeek20$Global_active_power)
 # TODO mode skipped
-counter <- 
 
 minGlobal_active_power <- min(dfWeek20$Global_active_power)
 maxGlobal_active_power <- max(dfWeek20$Global_active_power)
