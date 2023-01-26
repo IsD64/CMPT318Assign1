@@ -1,6 +1,6 @@
 library(ggplot2)
 library(dplyr)
-setwd("C:/Users/24312/Documents/code/R")
+setwd("C:/Users/24312/Documents/code/R") # change to directory containing text
 df <- read.table("Group_Assignment_1_Dataset.txt", header = TRUE, sep = ",")
 
 # find the dates of week 20, append in week20,
@@ -80,8 +80,8 @@ colnames(newmatrix) <- c("Var1", "Var2", "Cor")
 dfcorrMatrix <- data.frame(newmatrix)
 dfcorrMatrix$Cor <- as.double(dfcorrMatrix$Cor)
 p <- dfcorrMatrix %>% ggplot(aes(x = Var1, y = Var2))
-p + geom_tile(aes(fill = Cor)) +
-theme(axis.text.x = element_text(angle = 75, vjust = 0.45, hjust = 0.43))
+p + geom_tile(aes(fill = Cor)) + ylab("") + xlab("") +
+    theme(axis.text.x = element_text(angle = 75, vjust = 0.45, hjust = 0.43))
 
 
 # Question 3
