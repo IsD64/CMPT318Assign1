@@ -138,7 +138,7 @@ p <- dfGI %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
 #p1 <- dfGIDay %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
 #p2 <- dfGIN %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
 
-p + geom_point() + geom_smooth(method = "lm", formula = y~x, col = "black") + geom_smooth(method = "lm", formula = y~poly(x,degree=2,raw=TRUE),col="black") + theme(axis.text.x=element_blank()) + labs(title = "Average Global Intensity", y = "Average Global Intensity", x = "Time") + facet_wrap(~timeofday)
+p + geom_point() + geom_smooth(method = "lm", formula = y~x, col = "red", data = filter(dfGI,Week=="Weekday")) + geom_smooth(method = "lm", formula = y~x, col = "blue", data = filter(dfGI,Week=="Weekend")) + geom_smooth(method = "lm", formula = y~poly(x,degree=2,raw=TRUE),col="red", data = filter(dfGI,Week=="Weekday")) + geom_smooth(method = "lm", formula = y~poly(x,degree=2,raw=TRUE),col="blue", data = filter(dfGI,Week=="Weekend")) + theme(axis.text.x=element_blank()) + labs(title = "Average Global Intensity", y = "Average Global Intensity", x = "Time") + facet_wrap(~timeofday)
 
 #Just in  case I'll keep these here
 #plot1 <- p1 + geom_point() + geom_smooth(method = "lm", formula = y~x, col = "black") + geom_smooth(method = "lm", formula = y~poly(x,degree=2,raw=TRUE),col="black") + theme(axis.text.x=element_blank()) + labs(title = "Average Global Intensity During the Day", y = "Average Global Intensity", x = "Time (8:00 - 20:00)")
