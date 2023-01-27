@@ -95,34 +95,84 @@ p + geom_tile(aes(fill = Cor)) + ylab("") + xlab("") +
 
 time <- dfWeek20$Time
 Global_intensity <- dfWeek20$Global_intensity
-## Defined day time as between 08:00 to 16:00,
-## Night time as 16:01 to 7:59
+## Defined day time as between 08:00 to 20:00,
+## Night time as 20:01 to 7:59
+
+timeasint <- function(data) {
+    return(data %>%
+           mutate(hour = if_else(substr(Time, 1, 1) == "0",
+                                 substr(Time, 2, 2), substr(Time, 1, 2))) %>%
+           mutate(minute = if_else(substr(Time, 4, 4) == "0",
+                                   substr(Time, 5, 5),
+                                   substr(Time, 4, 5))) %>%
+           mutate(Time_int = strtoi(hour) +
+                  (strtoi(minute) / 60) +
+                  if_else(strtoi(hour) < 8, 24, 0)))
+}
 
 ## find the entries correlated to day time, and keep only the needed columns
 ## 1,2,6 refers to the columns Date, Time, and Global_intensity
-dfGIDay <- dfWeek20[dfWeek20$Time >= "08:00:00" & dfWeek20$Time <= "16:00:00", ]
+dfGIDay <- dfWeek20[dfWeek20$Time >= "08:00:00" & dfWeek20$Time <= "20:00:00", ]
 dfGIDay <- dfGIDay[c(1, 2, 6)]
+dfGIDay <- timeasint(dfGIDay)
 
-## find the columns related to weekdays and weekends
+## find the rows related to weekdays and weekends
 dfGIDaywd <- dfGIDay[!(dfGIDay$Date %in% week20[6:7]), ]
 dfGIDaywe <- dfGIDay[(dfGIDay$Date %in% week20[6:7]), ]
 
-dfGIN <- dfWeek20[dfWeek20$Time < "08:00:00" | dfWeek20$Time > "16:00:00", ]
+dfGIN <- dfWeek20[dfWeek20$Time < "08:00:00" | dfWeek20$Time > "20:00:00", ]
 dfGIN <- dfGIN[c(1, 2, 6)]
+dfGIN <- timeasint(dfGIN)
 
 dfGINwd <- dfGIN[!(dfGIN$Date %in% week20[6:7]), ]
 dfGINwe <- dfGIN[(dfGIN$Date %in% week20[6:7]), ]
 
+##Average global intensity for day and night for weekday/weekend
 dfGIDaywd <- dfGIDaywd %>%
-             group_by(Time) %>%
-             summarise(avg = mean(Global_intensity))
+    group_by(Time_int) %>%
+    summarise(avg = mean(Global_intensity)) %>% mutate(Week = "Weekday")
 dfGIDaywe <- dfGIDaywe %>%
-             group_by(Time) %>%
-             summarise(avg = mean(Global_intensity))
+    group_by(Time_int) %>%
+    summarise(avg = mean(Global_intensity)) %>% mutate(Week = "Weekend")
 dfGINwd <- dfGINwd %>%
-           group_by(Time) %>%
-           summarise(avg = mean(Global_intensity))
+    group_by(Time_int) %>%
+    summarise(avg = mean(Global_intensity)) %>% mutate(Week = "Weekday")
 dfGINwe <- dfGINwe %>%
-           group_by(Time) %>%
-           summarise(avg = mean(Global_intensity))
-## TODO finish the work and add comment
+    group_by(Time_int) %>%
+    summarise(avg = mean(Global_intensity)) %>% mutate(Week = "Weekend")
+
+##combine all dataframes into a single dataframe to prepare for graph
+dfGIDay <- rbind(dfGIDaywd,dfGIDaywe) %>%
+           mutate(timeofday = "Day (8:00 - 20:00)")
+dfGIN <- rbind(dfGINwd,dfGINwe) %>% mutate(timeofday = "Night (20:01 - 7:59)")
+
+dfGI <- rbind(dfGIN,dfGIDay)
+
+##Display both plots at the same time
+p <- dfGI %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
+#p1 <- dfGIDay %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
+#p2 <- dfGIN %>% ggplot(mapping = aes(y = avg, x = Time_int, color = Week))
+
+p +
+geom_point() +
+geom_smooth(method = "lm",
+            formula = y ~ x,
+            col = "red",
+            data = filter(dfGI, Week == "Weekday")) +
+geom_smooth(method = "lm",
+            formula = y ~ x,
+            col = "blue",
+            data = filter(dfGI, Week == "Weekend")) +
+geom_smooth(method = "lm",
+            formula = y ~ poly(x, degree = 2, raw = TRUE),
+            col = "red",
+            data = filter(dfGI, Week == "Weekday")) +
+geom_smooth(method = "lm",
+            formula = y ~ poly(x, degree = 2, raw = TRUE),
+            col = "blue",
+            data = filter(dfGI, Week == "Weekend")) +
+theme(axis.text.x = element_blank()) +
+labs(title = "Average Global Intensity",
+     y = "Average Global Intensity",
+     x = "Time") +
+facet_wrap(~timeofday)
