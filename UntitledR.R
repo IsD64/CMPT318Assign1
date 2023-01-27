@@ -1,6 +1,6 @@
 library(ggplot2)
 library(dplyr)
-setwd("C:/Users/24312/Documents/code/R") # change to directory containing text
+setwd("C:/Users/24312/Documents/code/R") # change to directory containing input
 df <- read.table("Group_Assignment_1_Dataset.txt", header = TRUE, sep = ",")
 
 # find the dates of week 20, append in week20,
@@ -25,9 +25,12 @@ arithMeanGlobal_active_power <- mean(dfWeek20$Global_active_power)
 ### geometric mean is e^(mean(ln(i)))
 geomMeanGlobal_active_power <- exp(mean(log(dfWeek20$Global_active_power)))
 medianGlobal_active_power <- median(dfWeek20$Global_active_power)
-### TODO mode skipped
-### (dfWeek20 %>% group_by(Global_active_power) %>%
-### summarise(total = n())) %>% filter(total == max(total))
+
+modeGlobal_active_power <- (dfWeek20 %>%
+                            group_by(Global_active_power) %>%
+                            summarise(total = n())) %>%
+                            filter(total == max(total))
+modeGlobal_active_power <- modeGlobal_active_power$Global_active_power
 
 minGlobal_active_power <- min(dfWeek20$Global_active_power)
 maxGlobal_active_power <- max(dfWeek20$Global_active_power)
@@ -36,9 +39,11 @@ maxGlobal_active_power <- max(dfWeek20$Global_active_power)
 arithMeanGlobal_reactive_power <- mean(dfWeek20$Global_reactive_power)
 geomMeanGlobal_reactive_power <- exp(mean(log(dfWeek20$Global_reactive_power)))
 medianGlobal_reactive_power <- median(dfWeek20$Global_reactive_power)
-### TODO mode skipped
-### (dfWeek20 %>% group_by(Global_active_power) %>%
-### summarise(total = n())) %>% filter(total == max(total))
+modeGlobal_reactive_power <- (dfWeek20 %>%
+                              group_by(Global_reactive_power) %>%
+                              summarise(total = n())) %>%
+                              filter(total == max(total))
+modeGlobal_reactive_power <- modeGlobal_reactive_power$Global_reactive_power
 
 minGlobal_reactive_power <- min(dfWeek20$Global_reactive_power)
 maxGlobal_reactive_power <- max(dfWeek20$Global_reactive_power)
@@ -47,9 +52,11 @@ maxGlobal_reactive_power <- max(dfWeek20$Global_reactive_power)
 arithMeanVoltage <- mean(dfWeek20$Voltage)
 geomMeanVoltage <- exp(mean(log(dfWeek20$Voltage)))
 medianVoltage <- median(dfWeek20$Voltage)
-### TODO mode skipped
-### (dfWeek20 %>% group_by(Global_active_power) %>%
-### summarise(total = n())) %>% filter(total == max(total))
+modeVoltage <- (dfWeek20 %>%
+                group_by(Voltage) %>%
+                summarise(total = n())) %>%
+                filter(total == max(total))
+modeVoltage <- modeVoltage$Voltage
 
 
 # Question 2
