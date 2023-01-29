@@ -59,6 +59,14 @@ modeVoltage <- (dfWeek20 %>%
                 filter(total == max(total))
 modeVoltage <- modeVoltage$Voltage
 
+## standard deviation
+### A. Global_active_power
+sdGlobal_active_power <- sd(dfWeek20$Global_active_power)
+### B. Global_reactive_power
+sdGlobal_reactive_power <- sd(dfWeek20$Global_reactive_power)
+### C. Voltage
+sdVoltage <- sd(dfWeek20$Voltage)
+
 ## min max for weekdays/weekends, day/night
 weekdayStrings <- week20[1:5]
 DayRecord <- dfWeek20[dfWeek20$Time >= "08:00:00" &
