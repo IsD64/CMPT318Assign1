@@ -20,6 +20,7 @@ for (i in week20) {
 
 
 # Question 1
+
 ## A. Global_active_power
 arithMeanGlobal_active_power <- mean(dfWeek20$Global_active_power)
 ### geometric mean is e^(mean(ln(i)))
@@ -58,6 +59,38 @@ modeVoltage <- (dfWeek20 %>%
                 filter(total == max(total))
 modeVoltage <- modeVoltage$Voltage
 
+## min max for weekdays/weekends, day/night
+weekdayStrings <- week20[1:5]
+DayRecord <- dfWeek20[dfWeek20$Time >= "08:00:00" &
+                      dfWeek20$Time <= "20:00:00", ]
+NightRecord<- dfWeek20[dfWeek20$Time < "08:00:00" |
+                       dfWeek20$Time > "20:00:00", ]
+DayRecord <- DayRecord[c(1,3,4)]
+NightRecord <- NightRecord[c(1,3,4)]
+DayRecordwd <- DayRecord[!(DayRecord$Date %in% week20[6:7]), ]
+DayRecordwe <- DayRecord[(DayRecord$Date %in% week20[6:7]), ]
+NightRecordwd <- NightRecord[!(NightRecord$Date %in% week20[6:7]), ]
+NightRecordwe <- NightRecord[(NightRecord$Date %in% week20[6:7]), ]
+
+### A. Global_active_power
+maxDayGlobal_active_powerwd <- max(DayRecordwd$Global_active_power)
+minDayGlobal_active_powerwd <- min(DayRecordwd$Global_active_power)
+maxDayGlobal_active_powerwe <- max(DayRecordwe$Global_active_power)
+minDayGlobal_active_powerwe <- min(DayRecordwe$Global_active_power)
+maxNightGlobal_active_powerwd <- max(NightRecordwd$Global_active_power)
+minNightGlobal_active_powerwd <- min(NightRecordwd$Global_active_power)
+maxNightGlobal_active_powerwe <- max(NightRecordwe$Global_active_power)
+minNightGlobal_active_powerwe <- min(NightRecordwe$Global_active_power)
+
+### B. Global_reactive_power
+maxDayGlobal_reactive_powerwd <- max(DayRecordwd$Global_reactive_power)
+minDayGlobal_reactive_powerwd <- min(DayRecordwd$Global_reactive_power)
+maxDayGlobal_reactive_powerwe <- max(DayRecordwe$Global_reactive_power)
+minDayGlobal_reactive_powerwe <- min(DayRecordwe$Global_reactive_power)
+maxNightGlobal_reactive_powerwd <- max(NightRecordwd$Global_reactive_power)
+minNightGlobal_reactive_powerwd <- min(NightRecordwd$Global_reactive_power)
+maxNightGlobal_reactive_powerwe <- max(NightRecordwe$Global_reactive_power)
+minNightGlobal_reactive_powerwe <- min(NightRecordwe$Global_reactive_power)
 
 # Question 2
 
