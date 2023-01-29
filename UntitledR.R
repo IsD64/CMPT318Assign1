@@ -90,6 +90,16 @@ minNightGlobal_active_powerwd <- min(NightRecordwd$Global_active_power)
 maxNightGlobal_active_powerwe <- max(NightRecordwe$Global_active_power)
 minNightGlobal_active_powerwe <- min(NightRecordwe$Global_active_power)
 
+#### max/min for both day and night
+maxGlobal_active_powerwd <- max(c(maxDayGlobal_active_powerwd,
+                               maxNightGlobal_active_powerwd))
+maxGlobal_active_powerwe <- max(c(maxDayGlobal_active_powerwe,
+                                maxNightGlobal_active_powerwe))
+
+minGlobal_active_powerwd <- min(c(minDayGlobal_active_powerwd,
+                                minNightGlobal_active_powerwd))
+minGlobal_active_powerwe <- min(c(minDayGlobal_active_powerwe,
+                                minNightGlobal_active_powerwe))
 ### B. Global_reactive_power
 maxDayGlobal_reactive_powerwd <- max(DayRecordwd$Global_reactive_power)
 minDayGlobal_reactive_powerwd <- min(DayRecordwd$Global_reactive_power)
@@ -100,6 +110,16 @@ minNightGlobal_reactive_powerwd <- min(NightRecordwd$Global_reactive_power)
 maxNightGlobal_reactive_powerwe <- max(NightRecordwe$Global_reactive_power)
 minNightGlobal_reactive_powerwe <- min(NightRecordwe$Global_reactive_power)
 
+#### max/min for both day and night
+maxGlobal_reactive_powerwd <- max(c(maxDayGlobal_reactive_powerwd,
+                                  maxNightGlobal_reactive_powerwd))
+maxGlobal_reactive_powerwe <- max(c(maxDayGlobal_reactive_powerwe,
+                                  maxNightGlobal_reactive_powerwe))
+
+minGlobal_reactive_powerwd <- min(c(minDayGlobal_reactive_powerwd,
+                                  minNightGlobal_reactive_powerwd))
+minGlobal_reactive_powerwe <- min(c(minDayGlobal_reactive_powerwe,
+                                  minNightGlobal_reactive_powerwe))
 # Question 2
 
 ##labels for parameters the correlation
