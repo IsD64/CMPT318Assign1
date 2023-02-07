@@ -70,4 +70,4 @@ graphdata <- rbind(rbind(Average_Smoothened_Week,minweekdata),maxweekdata)
 
 p <- graphdata %>% ggplot(mapping = aes(x = Time, y = Moving_Average, color = Week))
 
-p + geom_point(alpha = 0.5) + labs(title = "Most and Least Anomalous Weeks VS Average Smoothing Week from 00:00-23:59",y="Moving Average",x = "Time")
+p + geom_point(alpha = 0.5) + labs(title = "Most/Least Anomalous Weeks VS Average Week (00:00-23:59)",y="Moving Average (Global Intensity)",x = "Time") + theme(axis.text.x = element_blank())
