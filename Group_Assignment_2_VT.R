@@ -12,7 +12,7 @@ df <- read.table("Group_Assignment_2_Dataset.txt", header = TRUE, sep = ",")
 weeks <- c()
 
 #Set up week names -> week1:week52
-for (i in 1:52) {
+for (i in 1:53) {
   weeks <- c(weeks,paste("week",i,sep = ""))
 }
 
@@ -24,7 +24,7 @@ for (i in 1:52) {
   temp <- data.frame()
   temp <- df[(1+10080*(i-1)):(10080*i),]
   assign(weeks[i],temp)
-  smoothtemp <- temp %>% mutate("Moving_Average" = rollmean(Global_intensity,7,fill = 0))
+  smoothtemp <- temp %>% mutate("Moving_Average" = rollmean(Global_intensity,7,fill = NA))
   assign(paste("Smoothened",weeks[i]),smoothtemp)
   smoothavg <- rbind(smoothavg,smoothtemp)
   weeklymeans <- c(weeklymeans,mean(smoothtemp$Moving_Average,na.rm = TRUE))
@@ -32,23 +32,42 @@ for (i in 1:52) {
 
 #After last week, still one more day to include, 1440 minutes in a day
 week53 <- tail(df,1440)
-assign("Smoothened week53",week53 %>% mutate("Moving_Average" = rollmean(Global_intensity,7,fill = 0)))
+assign("Smoothened week53",week53 %>% mutate("Moving_Average" = rollmean(Global_intensity,7,fill = NA)))
 smoothavg <- rbind(smoothavg,`Smoothened week53`)
 weeklymeans <- c(weeklymeans,mean(`Smoothened week53`$Moving_Average,na.rm = TRUE))
 
-Average_Smoothened_Week <- smoothavg %>% group_by(Time) %>% summarise(Average_Smoothened_Week_at_Time_t = mean(Moving_Average,na.rm = TRUE))
+Average_Smoothened_Week <- smoothavg %>% group_by(Time) %>% summarise(Moving_Average = mean(Moving_Average,na.rm = TRUE))
 
-avgsmoothweek <- mean(Average_Smoothened_Week$Average_Smoothened_Week_at_Time_t,na.rm = TRUE)
+avgsmoothweek <- mean(Average_Smoothened_Week$Moving_Average,na.rm = TRUE)
 
 comparedsmoothweeks <- c()
 
-avgweeksd <- sd(Average_Smoothened_Week$Average_Smoothened_Week_at_Time_t)
+avgweeksd <- sd(Average_Smoothened_Week$Moving_Average)
 
-#scoring is determined by calculating the standard deviation of the 
+#scoring is determined by calculating the standard deviation of the mean for the average week and determining each week's distance from the average week in terms of standard deviations
 for (i in 1:53) {
-  comparedsmoothweeks <- c(comparedsmoothweeks,weeklymeans[i]/avgweeksd)
+  comparedsmoothweeks <- c(comparedsmoothweeks,abs((avgsmoothweek - weeklymeans[i])/avgweeksd))
 }
 
-Most_Anomalous <- weeks[match(max(comparedsmoothweeks),comparedsmoothweeks)]
-Least_Anomalous <- weeks[match(min(comparedsmoothweeks),comparedsmoothweeks)]
+maxpos <- match(max(comparedsmoothweeks),comparedsmoothweeks)
+minpos <- match(min(comparedsmoothweeks),comparedsmoothweeks)
 
+Most_Anomalous <- paste("Week",maxpos)
+Least_Anomalous <- paste("Week",minpos)
+
+print(paste("Most anomalous week is week",paste(maxpos,paste("and least anomalous week is week",minpos))))
+  
+Anomaly_Score_Table <- data.frame(weeks,comparedsmoothweeks)
+colnames(Anomaly_Score_Table) <- c("Week","Score (Number of Standard Deviations Away From Mean)")
+
+Anomaly_Score_Table
+
+Average_Smoothened_Week <- Average_Smoothened_Week %>% mutate(Week = "Average Smoothened Week")
+minweekdata <- smoothavg[(1+10080*(minpos-1)):(10080*minpos),] %>% group_by(Time) %>% summarise(Moving_Average = mean(Moving_Average,na.rm = TRUE)) %>% mutate(Week = paste("Least Anomalous Week:",Least_Anomalous))
+maxweekdata <- smoothavg[(1+10080*(maxpos-1)):(10080*maxpos),] %>% group_by(Time) %>% summarise(Moving_Average = mean(Moving_Average,na.rm = TRUE)) %>% mutate(Week = paste("Most Anomalous Week:",Most_Anomalous))
+
+graphdata <- rbind(rbind(Average_Smoothened_Week,minweekdata),maxweekdata)
+
+p <- graphdata %>% ggplot(mapping = aes(x = Time, y = Moving_Average, color = Week))
+
+p + geom_point(alpha = 0.5) + labs(title = "Most and Least Anomalous Weeks VS Average Smoothing Week from 00:00-23:59",y="Moving Average",x = "Time")
