@@ -64,16 +64,6 @@ for (i in 1:52) {
 
 # strategy: starting at 3 and 10, and use binary search to reduce search space
 
-
-model_1state <- depmix(response = Global_active_power ~ 1,
-                 data = time_window_df,
-                 nstates = 1,
-                 ntimes = rep(241, 52))
-fit_model_1state <- fit(model_1state)
-summary(fit_model_1state)
-log_lik_1state <- logLik(fit_model_1state)
-BIC_1state <- BIC(fit_model_1state)
-
 model_3states <- depmix(response = Global_active_power ~ 1,
                  data = time_window_df,
                  nstates = 3,
@@ -110,14 +100,23 @@ summary(fit_model_13states)
 log_lik_13states <- logLik(fit_model_13states)
 BIC_13states <- BIC(fit_model_13states)
 
+model_16states <- depmix(response = Global_active_power ~ 1,
+                 data = time_window_df,
+                 nstates = 16,
+                 ntimes = rep(241, 52))
+fit_model_16states <- fit(model_16states)
+summary(fit_model_16states)
+log_lik_16states <- logLik(fit_model_16states)
+BIC_16states <- BIC(fit_model_16states)
+
 model_performance <- data.frame(
-    state_count = c(1, 3, 7, 10, 13),
-    log_liks = c(log_lik_1state,
-                 log_lik_3states,
+    state_count = c(3, 7, 10, 13, 16),
+    log_liks = c(log_lik_3states,
                  log_lik_7states,
                  log_lik_10states,
-                 log_lik_13states),
-    BICs = c(BIC_1state, BIC_3states, BIC_7states, BIC_10states, BIC_13states)
+                 log_lik_13states,
+                 log_lik_16states),
+    BICs = c(BIC_3states, BIC_7states, BIC_10states, BIC_13states, BIC_16states)
 )
 
 # we want low BIC (complexity) and high likelihood(accuracy)
@@ -135,3 +134,6 @@ performance_plot <- model_performance %>%
 # the number of states, maybe the time interval choice is incorrect, or
 # implementation incorrect?
 # I can't seem to find a correct way to add labels to the performance_plot
+
+# found out that the parameters do get worse when we do it at 16
+# then we can go back to binary searching
