@@ -8,9 +8,9 @@ df <- read.table("Term_Project_Dataset.txt", header = TRUE, sep = ",")
 #Removing NA values
 df[is.na(df)] = 0
 
-#Selecting subset for PCA, specifically Mondays in 2007 from 6:00pm - 7:00pm
+#Selecting subset for PCA, specifically Mondays in 2007 from 2:00pm - 7:00pm
 
-df1 <- df %>% filter(substr(Date,str_length(Date)-3,str_length(Date))=="2007" & Time >= "17:59:59" & Time <= "19:00:00") 
+df1 <- df %>% filter(substr(Date,str_length(Date)-3,str_length(Date))=="2007" & Time >= "12:59:59" & Time <= "19:00:00") 
 
 #We know that in an hour interval, there will be 61 observations per day (the first minute of the next hour is included)
 #Along with 52 weeks, that means we need to find 52 Mondays
@@ -29,6 +29,16 @@ dfpca <- as.data.frame(scale(df2[2:8]))
 pca <- prcomp(dfpca)
 pcasum <- summary(pca)
 
-biplot(pca, cex = c(0.5,0.5), col = c("black","red"))
+biplot(pca, cex = c(0.5,0.5), col = c("black","red"), arrow.len = 0.1, ylim = c(-0.4,0.4), xlim = c(-0.4,0.4))
 
-pcasum$importance[3,]
+pcasum
+#From the importance, we can see that using 4 principal components allows the data to explain 89-90% of the variance. Therefore we will use 4 components.
+#The 4 components will be selected by comparing magnitudes in each principal component
+
+pca
+#Component 1: Global_Intensity
+#Component 2: Sub_Metering_2
+#Component 3: Voltage
+#Component 4: Global_Reactive_Power
+
+dfresult <- df1 %>% select(Date,Time,Global_intensity,Sub_metering_2,Voltage,Global_reactive_power)
