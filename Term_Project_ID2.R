@@ -11,7 +11,6 @@ library(zoo)
 # test the trained model, find almost equal log_lik
 # use tested training model to find anamolous dataset
 
-
 setwd("C:/Users/24312/Documents/code/R") # is Isaac's path
 # setwd("C:/Users/thund/Desktop/Cmpt 318") # is Vincent's path
 
@@ -19,6 +18,8 @@ setwd("C:/Users/24312/Documents/code/R") # is Isaac's path
 set.seed(3)
 
 df <- read.table("Term_Project_Dataset.txt", header = TRUE, sep = ",")
+
+## Part 1
 
 # interpolate N/A values
 df_time_info_header <- df[, 1 : 2]
@@ -55,27 +56,41 @@ dfpca <- as.data.frame(selecteddata[3 : 8])
 pca <- prcomp(dfpca, scale = TRUE)
 pcasum <- summary(pca)
 
-plot(pca$x[, 1], pca$x[, 2])
+biplot(pca,
+       cex = c(0.3, 0.5),
+       col = c("black", "red"),
+       arrow.len = 0.1,
+       ylim = c(-0.03, 0.03),
+       xlim = c(-0.03, 0.015))
 
-pca.var <- pca$sdev^2
-pca.var.per <- round(pca.var / sum(pca.var) * 100, 1)
-
-biplot(pca, cex = c(0.3, 0.5), col = c("black", "red"),
-       arrow.len = 0.1, ylim = c(-0.1, 0.1), xlim = c(-0.1, 0.1))
-
+# sort the different fields by their importance to PC1
+# PCn denotes the Principal Component with nth highest portion of variance
+# the Principle component can explain in the data 
+# the importance of a field in the data to the Principal Component is measured
+# by the absolute value of of its loading score in that Principal Component 
+# pick the top 2 or 3 as our features to train HMM with
 importance <- sort(abs(pca$rotation[, 1]), decreasing = TRUE)
 importanceFeatures <- names(importance[1:3])
 pca$rotation[importanceFeatures, 1]
+# results show that Global_active_power, Global_intensity and Sub_metering_1
+# are the most important features in PC1
 
 pcasum
-# From the importance, we can see that using 5 principal components allows
-# the data to explain 95% of the variance. Therefore we will use 5 components.
-# The 5 components will be selected
-# by comparing magnitudes in each principal component
-# pca
+# we can see that the first two PCs can explain about 60% of the data's
+# variance, and thus we do not consider the rest PCs, as it brings
+# unnecessary extra complexity to training the model, and possibly
+# also more noise to be introduced
+# Global_active_power, Global_intensity and Sub_metering_1 are the most
+# important features in PC1, and since they are still very important
+# considering their weighted average loading score, they are a good choice for
+# features when training the HMM model.
+# we may want to remove the feature with least importance to PC1 among the
+# three, Sub_metering_1, later if doing so improves the performance of the model
 
-dfresult <- selecteddata[, c(3, 6)]
-weeks_before_2009 = 154 - 47
+## Part 2, Work In Progress
+
+dfresult <- selecteddata[, c(3, 6, 7)]
+weeks_before_2009 <- 154 - 47
 obs_per_week <- 301
 obs_first_week <- 97
 entries_before_2009 <- obs_first_week + (obs_per_week * (weeks_before_2009 - 1))
@@ -83,114 +98,108 @@ df_train <- dfresult[1: entries_before_2009, ]
 df_test <- setdiff(dfresult, df_train)
 
 model_4states <- depmix(response = list(Global_intensity ~ 1,
-                                        Global_active_power ~ 1),
+                                        Global_active_power ~ 1,
+                                        Sub_metering_1 ~ 1),
                         data = df_train,
                         nstates = 4,
                         ntimes = c(obs_first_week,
                                    rep(obs_per_week, weeks_before_2009 - 1)),
-                        family = list(gaussian(), gaussian()))
+                        family = list(gaussian(), gaussian(), multinomial()))
 fit_model_4states <- fit(model_4states)
 summary(fit_model_4states)
 log_lik_4states <- logLik(fit_model_4states)
 BIC_4states <- BIC(fit_model_4states)
 
 model_8states <- depmix(response = list(Global_intensity ~ 1,
-                                        Global_active_power ~ 1),
+                                        Global_active_power ~ 1,
+                                        Sub_metering_1 ~ 1),
                         data = df_train,
                         nstates = 8,
                         ntimes = c(obs_first_week,
                                    rep(obs_per_week, weeks_before_2009 - 1)),
-                        family = list(gaussian(), gaussian()))
+                        family = list(gaussian(), gaussian(), multinomial()))
 fit_model_8states <- fit(model_8states)
 summary(fit_model_8states)
 log_lik_8states <- logLik(fit_model_8states)
 BIC_8states <- BIC(fit_model_8states)
 
 model_12states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 12,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), multinomial()))
 fit_model_12states <- fit(model_12states)
 summary(fit_model_12states)
 log_lik_12states <- logLik(fit_model_12states)
 BIC_12states <- BIC(fit_model_12states)
 
-# training more than 14 states seems to diverge
 model_14states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 14,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), gaussian()))
 fit_model_14states <- fit(model_14states)
 summary(fit_model_14states)
 log_lik_14states <- logLik(fit_model_14states)
 BIC_14states <- BIC(fit_model_14states)
 
 model_16states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 16,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), gaussian()))
 fit_model_16states <- fit(model_16states)
 summary(fit_model_16states)
 log_lik_16states <- logLik(fit_model_16states)
 BIC_16states <- BIC(fit_model_16states)
 
 model_18states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 18,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), gaussian()))
 fit_model_18states <- fit(model_18states)
 summary(fit_model_18states)
 log_lik_18states <- logLik(fit_model_18states)
 BIC_18states <- BIC(fit_model_18states)
 
 model_20states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 20,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), gaussian()))
 fit_model_20states <- fit(model_20states)
 summary(fit_model_20states)
 log_lik_20states <- logLik(fit_model_20states)
 BIC_20states <- BIC(fit_model_20states)
 
 model_24states <- depmix(response = list(Global_intensity ~ 1,
-                                         Global_active_power ~ 1),
+                                         Global_active_power ~ 1,
+                                         Sub_metering_1 ~ 1),
                          data = df_train,
                          nstates = 24,
                          ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
-                         family = list(gaussian(), gaussian()))
+                         family = list(gaussian(), gaussian(), gaussian()))
 fit_model_24states <- fit(model_24states)
 summary(fit_model_24states)
 log_lik_24states <- logLik(fit_model_24states)
 BIC_24states <- BIC(fit_model_24states)
-
-# multinomial distribution doesn't seem to work
-mult_4states <- depmix(response = list(Global_intensity ~ 1,
-                                       Global_active_power ~ 1),
-                       data = df_train,
-                       nstates = 4,
-                       ntimes = c(obs_first_week,
-                                  rep(obs_per_week, weeks_before_2009 - 1)),
-                             family = list(multinomial(), multinomial()))
-fit_model_4states_mult <- fit(mult_4states)
-summary(fit_model_4states_mult)
-log_lik_4states_mult <- logLik(fit_model_4states_mult)
-BIC_4states_mult <- BIC(fit_model_4states_mult)
 
 model_performance <- data.frame(
     state_count = c(4, 8, 12, 14, 16, 18, 20, 24),
