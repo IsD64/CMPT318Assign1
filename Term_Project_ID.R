@@ -5,6 +5,14 @@ library(stats)
 library(stringr)
 library(zoo)
 
+# TODO:
+# learn about PCA
+# test HMM learning with 3 features
+# test if HMM works for higher states at different random seeds
+# test the trained model, find almost equal log_lik
+# use tested training model to find anamolous dataset
+
+
 setwd("C:/Users/24312/Documents/code/R") # is Isaac's path
 # setwd("C:/Users/thund/Desktop/Cmpt 318") # is Vincent's path
 
@@ -32,9 +40,9 @@ df1 <- df %>% filter(Time >= "13:59:59" & Time <= "19:00:00")
 # (the first minute of the next hour is included)
 # Along with 52 weeks in a year, from 16/12/2006 to 1/12/2009,
 # that means we need to find 3 + 52 + 52 + 47 = 154 Saturdays
-df2 <- df1[1:97,]
+df2 <- df1[1:97, ]
 
-tempdf <- tail(df1,325185-1903)
+tempdf <- tail(df1, 325185 - 1903)
 
 for (i in 0:153) {
     temp <- tempdf[(1 + (301 * 7 * i)):(301 + (301 * 7 * i)), ]
@@ -85,7 +93,7 @@ df_test <- setdiff(dfresult, df_train)
 model_4states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                         data = df_train,
                         nstates = 4,
-                        ntimes = c(obs_first_week, 
+                        ntimes = c(obs_first_week,
                                    rep(obs_per_week, weeks_before_2009 - 1)),
                         family = list(gaussian(), gaussian()))
 fit_model_4states <- fit(model_4states)
@@ -96,7 +104,7 @@ BIC_4states <- BIC(fit_model_4states)
 model_8states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                         data = df_train,
                         nstates = 8,
-                        ntimes = c(obs_first_week, 
+                        ntimes = c(obs_first_week,
                                    rep(obs_per_week, weeks_before_2009 - 1)),
                         family = list(gaussian(), gaussian()))
 fit_model_8states <- fit(model_8states)
@@ -107,7 +115,7 @@ BIC_8states <- BIC(fit_model_8states)
 model_12states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 12,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_12states <- fit(model_12states)
@@ -119,7 +127,7 @@ BIC_12states <- BIC(fit_model_12states)
 model_14states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 14,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_14states <- fit(model_14states)
@@ -130,7 +138,7 @@ BIC_14states <- BIC(fit_model_14states)
 model_16states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 16,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_16states <- fit(model_16states)
@@ -141,7 +149,7 @@ BIC_16states <- BIC(fit_model_16states)
 model_18states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 18,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_18states <- fit(model_18states)
@@ -152,7 +160,7 @@ BIC_18states <- BIC(fit_model_18states)
 model_20states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 20,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_20states <- fit(model_20states)
@@ -163,7 +171,7 @@ BIC_20states <- BIC(fit_model_20states)
 model_24states <- depmix(response = list(Global_intensity ~ 1, Voltage ~ 1),
                          data = df_train,
                          nstates = 24,
-                         ntimes = c(obs_first_week, 
+                         ntimes = c(obs_first_week,
                                     rep(obs_per_week, weeks_before_2009 - 1)),
                          family = list(gaussian(), gaussian()))
 fit_model_24states <- fit(model_24states)
